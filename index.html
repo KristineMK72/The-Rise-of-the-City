@@ -1,184 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>The Rise of the City</title>
-
-<!-- Leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    background: #000;
-    font-family: "Segoe UI", sans-serif;
-  }
-
-  header {
-    text-align: center;
-    padding: 1rem;
-    background: rgba(0,0,0,0.8);
-    color: #fff;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-  }
-
-  #map {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    z-index: 1;
-    filter: brightness(0.4);
-    transition: filter 2s ease-in-out;
-  }
-
-  .decade-label {
-    position: absolute;
-    bottom: 90px;
-    right: 60px;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 1.6rem;
-    color: #fff;
-    font-weight: bold;
-    z-index: 9999;
-    letter-spacing: 2px;
-  }
-
-  /* Urbanization scale */
-  .scale-container {
-    position: absolute;
-    bottom: 40px;
-    left: 60px;
-    width: 220px;
-    height: 15px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-    z-index: 9999;
-  }
-
-  .scale-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #ff9900, #ffd500, #ffffff);
-    box-shadow: 0 0 20px #ffaa00;
-    transition: width 2s ease-in-out;
-  }
-
-  .city-glow {
-    width: 16px;
-    height: 16px;
-    background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,150,0,0.8) 50%, rgba(255,150,0,0) 80%);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 2s ease-in-out;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The，身 The Rise of the City</title>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      font-family: "Segoe UI", sans-serif;
+    }
+    header {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    header p {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #map {
+      position: absolute;
+      top: 100px;
+      left: 0;
+      height: calc(100% - 100px);
+      width: 100%;
+      z-index: 1;
+      background: radial-gradient(circle at center, rgba(60, 60, 60, 0.3) 0%, rgba(0, 0, 0, 1) 70%);
+    }
+    .map-overlay {
+      position: absolute;
+      top: 100px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 100px);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(255, 150, 0, 0.2));
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 2s ease-in-out;
+    }
+    .decade-label {
+      position: absolute;
+      bottom: 90px;
+      right: 60px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1.6rem;
+      color: #fff;
+      font-weight: bold;
+      z-index: 9999;
+      letter-spacing: 2px;
+    }
+    .scale-container {
+      position: absolute;
+      bottom: 40px;
+      left: 60px;
+      width: 220px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 9999;
+    }
+    .scale-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9900, #ffd500, #ffffff);
+      box-shadow: 0 0 20px #ffaa00;
+      transition: width 2s ease-in-out;
+    }
+    .controls {
+      position: absolute;
+      top: 180px;
+      left: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .controls button, .controls select {
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      border: 1px solid #ffaa00;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .controls button:hover, .controls select:hover {
+      background: rgba(255, 170, 0, 0.2);
+    }
+    .city-glow {
+      width: 30px;
+      height: 30px;
+      background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,150,0,0.8) 50%, rgba(255,150,0,0) 80%);
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(255, 150, 0, 0.9);
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      transition: opacity 2s ease-in-out;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .city-glow.later-decade {
+      width: 40px;
+      height: 40px;
+      box-shadow: 0 0 50px rgba(255, 180, 0, 1);
+      background: radial-gradient(circle, rgba(255,220,0,1) 0%, rgba(255,170,0,0.9) 50%, rgba(255,170,0,0) 80%);
+    }
+    .city-glow.minneapolis {
+      background: radial-gradient(circle, rgba(128,0,128,1) 0%, rgba(128,0,128,0.8) 50%, rgba(128,0,128,0) 80%);
+      box-shadow: 0 0 30px rgba(128, 0, 128, 0.9);
+    }
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.3); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+  </style>
 </head>
-
 <body>
   <header>
     <h1>🌆 The Rise of the City: 1950–2020</h1>
-    <p>Urbanization glowing through the decades</p>
+    <p>Watch U.S. cities glow brighter as urbanization surges, from the 1970s when Minneapolis pulsed with Prince’s early beats to modern tech hubs like Austin. Click glowing cities and urban areas to explore their growth stories.</p>
   </header>
-
   <div id="map"></div>
+  <div id="map-overlay" class="map-overlay"></div>
   <div id="decade" class="decade-label">1950</div>
-
   <div class="scale-container">
     <div class="scale-fill" id="scaleFill"></div>
   </div>
-
+  <div class="controls">
+    <button id="toggleAnimation">Pause</button>
+    <select id="decadeSelect">
+      <option value="1950">1950</option>
+      <option value="1970">1970</option>
+      <option value="1990">1990</option>
+      <option value="2010">2010</option>
+      <option value="2020">2020</option>
+    </select>
+  </div>
   <script>
     // Initialize map
     const map = L.map('map', {
       center: [39.8283, -98.5795],
       zoom: 4,
-      zoomControl: false
+      zoomControl: true
     });
 
-    // Base layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap & CARTO'
+    // Base layer (OpenStreetMap)
+    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      opacity: 0.7
     }).addTo(map);
 
-    // Hardcoded city growth data
+    // Ensure map renders correctly
+    setTimeout(() => map.invalidateSize(), 100);
+
+    // Hardcoded city growth data with urban weight and popup info
     const cityGrowth = {
       1950: [
-        { name: "New York", coords: [40.7128, -74.0060] },
-        { name: "Chicago", coords: [41.8781, -87.6298] },
-        { name: "Los Angeles", coords: [34.0522, -118.2437] }
+        { name: "New York", coords: [40.7128, -74.0060], fact: "NYC’s population topped 7.8M!", weight: 3, urbanInfo: "NYC led as the U.S.’s economic and cultural powerhouse, with 7.8M residents driving urban growth." },
+        { name: "Chicago", coords: [41.8781, -87.6298], fact: "Skyscraper boom begins.", weight: 2, urbanInfo: "Chicago’s steel and rail industries fueled a population of 3.6M, shaping the Midwest." },
+        { name: "Los Angeles", coords: [34.0522, -118.2437], fact: "Hollywood’s golden age.", weight: 2, urbanInfo: "LA’s film industry and sprawl drew 1.9M, sparking West Coast urbanization." }
       ],
       1970: [
-        { name: "Houston", coords: [29.7604, -95.3698] },
-        { name: "Dallas", coords: [32.7767, -96.7970] },
-        { name: "San Francisco", coords: [37.7749, -122.4194] }
+        { name: "Houston", coords: [29.7604, -95.3698], fact: "Oil and NASA fuel growth.", weight: 2, urbanInfo: "Houston’s oil boom and NASA’s space program pushed its population to 1.2M." },
+        { name: "Dallas", coords: [32.7767, -96.7970], fact: "Big D’s population surges.", weight: 2, urbanInfo: "Dallas grew to 844K, becoming a commercial hub in the expanding Sunbelt." },
+        { name: "San Francisco", coords: [37.7749, -122.4194], fact: "Hippie culture takes root.", weight: 2, urbanInfo: "San Francisco’s counterculture and tech seeds drew 715K residents." },
+        { name: "Minneapolis", coords: [44.9778, -93.2650], fact: "Prince’s early music scene emerges!", weight: 2, urbanInfo: "Minneapolis’s 430K residents saw the rise of Prince and a vibrant music culture." }
       ],
       1990: [
-        { name: "Miami", coords: [25.7617, -80.1918] },
-        { name: "Atlanta", coords: [33.7490, -84.3880] },
-        { name: "Seattle", coords: [47.6062, -122.3321] }
+        { name: "Miami", coords: [25.7617, -80.1918], fact: "Gateway to Latin America.", weight: 2, urbanInfo: "Miami’s trade and immigration boom grew its metro to over 2M." },
+        { name: "Atlanta", coords: [33.7490, -84.3880], fact: "Preps for ’96 Olympics.", weight: 2, urbanInfo: "Atlanta’s rise as a Southern hub, with 2.8M in its metro, set the stage for global attention." },
+        { name: "Seattle", coords: [47.6062, -122.3321], fact: "Grunge and tech take off.", weight: 3, urbanInfo: "Seattle’s tech and music scenes exploded, with 1.5M in its metro area." }
       ],
       2010: [
-        { name: "Denver", coords: [39.7392, -104.9903] },
-        { name: "Phoenix", coords: [33.4484, -112.0740] },
-        { name: "Las Vegas", coords: [36.1699, -115.1398] }
+        { name: "Denver", coords: [39.7392, -104.9903], fact: "Craft beer and mountains boom.", weight: 2, urbanInfo: "Denver’s outdoor lifestyle and tech growth drew 2.5M to its metro." },
+        { name: "Phoenix", coords: [33.4484, -112.0740], fact: "Sunbelt city explodes.", weight: 2, urbanInfo: "Phoenix’s sprawl and warm climate swelled its metro to 4.2M." },
+        { name: "Las Vegas", coords: [36.1699, -115.1398], fact: "Sin City’s neon peaks.", weight: 2, urbanInfo: "Las Vegas’s tourism and gaming industries hit 1.9M in metro population." }
       ],
       2020: [
-        { name: "Austin", coords: [30.2672, -97.7431] },
-        { name: "Nashville", coords: [36.1627, -86.7816] },
-        { name: "Charlotte", coords: [35.2271, -80.8431] }
+        { name: "Austin", coords: [30.2672, -97.7431], fact: "Tech hub with BBQ soul.", weight: 3, urbanInfo: "Austin’s tech surge and culture pushed its metro to 2.3M, a new urban star." },
+        { name: "Nashville", coords: [36.1627, -86.7816], fact: "Music City’s population soars.", weight: 3, urbanInfo: "Nashville’s music and economic growth hit 1.9M in its metro area." },
+        { name: "Charlotte", coords: [35.2271, -80.8431], fact: "Banking powerhouse rises.", weight: 3, urbanInfo: "Charlotte’s financial sector drove its metro to 2.7M, a Southern boomtown." }
       ]
     };
 
     const decadeLabel = document.getElementById("decade");
     const scaleFill = document.getElementById("scaleFill");
-    const mapEl = document.getElementById("map");
+    const mapOverlay = document.getElementById("map-overlay");
+    const toggleButton = document.getElementById("toggleAnimation");
+    const decadeSelect = document.getElementById("decadeSelect");
     const decades = Object.keys(cityGrowth);
     let i = 0;
+    let isPlaying = true;
+    let markers = [];
+    let urbanCircles = [];
 
-    // Function to show each decade
-    function showNextDecade() {
-      if (i >= decades.length) return;
-      const decade = decades[i];
+    // Function to clear existing markers and urban circles
+    function clearMarkersAndCircles() {
+      markers.forEach(marker => map.removeLayer(marker));
+      urbanCircles.forEach(circle => map.removeLayer(circle));
+      markers = [];
+      urbanCircles = [];
+    }
+
+    // Function to show a specific decade
+    function showDecade(decade, index) {
       decadeLabel.textContent = decade;
-
-      // Brighten the map slightly
-      const brightness = 0.4 + i * 0.12;
-      mapEl.style.filter = `brightness(${brightness})`;
-
-      // Fill the urbanization scale
-      const fillPercent = ((i + 1) / decades.length) * 100;
+      const overlayOpacity = 0.6 - index * 0.12;
+      mapOverlay.style.opacity = overlayOpacity;
+      const fillPercent = ((index + 1) / decades.length) * 100;
       scaleFill.style.width = `${fillPercent}%`;
 
-      // Add glowing cities
+      clearMarkersAndCircles();
       cityGrowth[decade].forEach(city => {
+        // Dynamic glow based on urban weight and decade
+        const isLaterDecade = index >= 3; // 2010 and 2020 are "more urban"
+        const isMinneapolis = city.name === "Minneapolis";
+        const glowSize = isLaterDecade ? [40, 40] : [30, 30];
         const icon = L.divIcon({
-          className: 'city-glow'
+          className: `city-glow ${isLaterDecade ? 'later-decade' : ''} ${isMinneapolis ? 'minneapolis' : ''}`,
+          iconSize: glowSize
         });
-
-        const marker = L.marker(city.coords, { icon }).addTo(map);
-
+        const marker = L.marker(city.coords, { icon })
+          .addTo(map)
+          .bindPopup(`<b>${city.name}</b><br>${city.fact}`);
+        markers.push(marker);
         setTimeout(() => {
           const el = marker.getElement();
           if (el) el.style.opacity = 1;
         }, 500);
-      });
 
-      i++;
-      setTimeout(showNextDecade, 4000);
+        // Add clickable urban circle with popup
+        const circleRadius = 100000 * (city.weight || 1);
+        const urbanCircle = L.circle(city.coords, {
+          radius: circleRadius,
+          color: 'rgba(255, 180, 0, 0)',
+          fillColor: isMinneapolis ? '#800080' : '#ffcc00', // Purple for Minneapolis
+          fillOpacity: isLaterDecade ? 0.3 : 0.2,
+          weight: 0
+        })
+          .addTo(map)
+          .bindPopup(`<b>${city.name} Urban Area</b><br>${city.urbanInfo}`);
+        urbanCircles.push(urbanCircle);
+      });
     }
 
-    showNextDecade();
+    // Animation loop
+    let animationInterval;
+    function startAnimation() {
+      if (!isPlaying) return;
+      if (i >= decades.length) i = 0;
+      showDecade(decades[i], i);
+      i++;
+      animationInterval = setTimeout(startAnimation, 5000);
+    }
+
+    // Toggle animation
+    toggleButton.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      toggleButton.textContent = isPlaying ? 'Pause' : 'Play';
+      if (isPlaying) startAnimation();
+      else clearTimeout(animationInterval);
+    });
+
+    // Decade selector
+    decadeSelect.addEventListener('change', (e) => {
+      clearTimeout(animationInterval);
+      isPlaying = false;
+      toggleButton.textContent = 'Play';
+      i = decades.indexOf(e.target.value);
+      showDecade(decades[i], i);
+    });
+
+    // Start the animation
+    startAnimation();
   </script>
 </body>
 </html>
