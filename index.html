@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Rise of the City</title>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #111;
+      color: #eee;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem;
+      background: #000;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .decade-label {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .leaflet-popup-content {
+      color: #000;
+    }
+
+    .glow-circle {
+      animation: pulse 2s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.3; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌆 The Rise of the City: 1950–2020</h1>
+    <p>A symbolic animation of urban growth across the United States</p>
+  </header>
+
+  <div id="map"></div>
+  <div id="decade" class="decade-label">1950</div>
+
+  <script>
+    // Create the map
+    const map = L.map('map', {
+      center: [39.8283, -98.5795], // center of the continental US
+      zoom: 4,
+      zoomControl: false
+    });
+
+    // Dark basemap
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap, CARTO'
+    }).addTo(map);
+
+    // Define major cities per decade
+    const cityGrowth = {
+      1950: [
+        { name: "New York", coords: [40.7128, -74.0060] },
+        { name: "Chicago", coords: [41.8781, -87.6298] },
+        { name: "Los Angeles", coords: [34.0522, -118.2437] }
+      ],
+      1970: [
+        { name: "Houston", coords: [29.7604, -95.3698] },
+        { name: "Dallas", coords: [32.7767, -96.7970] },
+        { name: "San Francisco", coords: [37.7749, -122.4194] }
+      ],
+      1990: [
+        { name: "Miami", coords: [25.7617, -80.1918] },
+        { name: "Atlanta", coords: [33.7490, -84.3880] },
+        { name: "Seattle", coords: [47.6062, -122.3321] }
+      ],
+      2010: [
+        { name: "Denver", coords: [39.7392, -104.9903] },
+        { name: "Phoenix", coords: [33.4484, -112.0740] },
+        { name: "Las Vegas", coords: [36.1699, -115.1398] }
+      ],
+      2020: [
+        { name: "Austin", coords: [30.2672, -97.7431] },
+        { name: "Nashville", coords: [36.1627, -86.7816] },
+        { name: "Charlotte", coords: [35.2271, -80.8431] }
+      ]
+    };
+
+    const decadeLabel = document.getElementById("decade");
+
+    // Animation logic
+    const decades = Object.keys(cityGrowth);
+    let i = 0;
+
+    function showNextDecade() {
+      if (i >= decades.length) return;
+
+      const decade = decades[i];
+      decadeLabel.textContent = decade;
+
+      cityGrowth[decade].forEach(city => {
+        const circle = L.circleMarker(city.coords, {
+          radius: 8,
+          color: '#fff',
+          fillColor: '#ff6600',
+          fillOpacity: 0.7,
+          className: 'glow-circle'
+        }).addTo(map);
+
+        circle.bindPopup(`<b>${city.name}</b><br>Growing since ${decade}`);
+      });
+
+      i++;
+      setTimeout(showNextDecade, 3000); // 3 seconds between decades
+    }
+
+    showNextDecade();
+  </script>
+</body>
+</html>
