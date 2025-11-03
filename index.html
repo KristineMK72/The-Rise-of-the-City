@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>The Rise of the City</title>
 
+<!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
@@ -14,23 +15,26 @@
     margin: 0;
     background: #000;
     font-family: "Segoe UI", sans-serif;
-    overflow: hidden;
   }
 
   header {
     text-align: center;
     padding: 1rem;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0,0,0,0.8);
+    color: #fff;
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
-    color: #eee;
   }
 
   #map {
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
     width: 100%;
+    z-index: 1;
     filter: brightness(0.4);
     transition: filter 2s ease-in-out;
   }
@@ -70,17 +74,10 @@
     transition: width 2s ease-in-out;
   }
 
-  .scale-label {
-    position: absolute;
-    bottom: 65px;
-    left: 60px;
-    color: #fff;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-  }
-
   .city-glow {
-    box-shadow: 0 0 20px 5px rgba(255,165,0,0.8);
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,150,0,0.8) 50%, rgba(255,150,0,0) 80%);
     border-radius: 50%;
     opacity: 0;
     transition: opacity 2s ease-in-out;
@@ -91,28 +88,30 @@
 <body>
   <header>
     <h1>🌆 The Rise of the City: 1950–2020</h1>
-    <p>Urbanization and the glowing pulse of America</p>
+    <p>Urbanization glowing through the decades</p>
   </header>
 
   <div id="map"></div>
   <div id="decade" class="decade-label">1950</div>
 
-  <div class="scale-label">Urbanization Scale</div>
   <div class="scale-container">
     <div class="scale-fill" id="scaleFill"></div>
   </div>
 
   <script>
+    // Initialize map
     const map = L.map('map', {
       center: [39.8283, -98.5795],
       zoom: 4,
       zoomControl: false
     });
 
+    // Base layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap, CARTO'
+      attribution: '&copy; OpenStreetMap & CARTO'
     }).addTo(map);
 
+    // Hardcoded city growth data
     const cityGrowth = {
       1950: [
         { name: "New York", coords: [40.7128, -74.0060] },
@@ -144,23 +143,42 @@
     const decadeLabel = document.getElementById("decade");
     const scaleFill = document.getElementById("scaleFill");
     const mapEl = document.getElementById("map");
-
     const decades = Object.keys(cityGrowth);
     let i = 0;
 
+    // Function to show each decade
     function showNextDecade() {
       if (i >= decades.length) return;
-
       const decade = decades[i];
       decadeLabel.textContent = decade;
 
-      // Brighten the map slightly each decade
+      // Brighten the map slightly
       const brightness = 0.4 + i * 0.12;
       mapEl.style.filter = `brightness(${brightness})`;
 
-      // Fill the scale gradually
+      // Fill the urbanization scale
       const fillPercent = ((i + 1) / decades.length) * 100;
       scaleFill.style.width = `${fillPercent}%`;
 
       // Add glowing cities
       cityGrowth[decade].forEach(city => {
+        const icon = L.divIcon({
+          className: 'city-glow'
+        });
+
+        const marker = L.marker(city.coords, { icon }).addTo(map);
+
+        setTimeout(() => {
+          const el = marker.getElement();
+          if (el) el.style.opacity = 1;
+        }, 500);
+      });
+
+      i++;
+      setTimeout(showNextDecade, 4000);
+    }
+
+    showNextDecade();
+  </script>
+</body>
+</html>
